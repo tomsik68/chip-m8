@@ -81,7 +81,7 @@ void chip8_cycle(chip8_t* chip){
 	chip->opcode = 0;
 	chip->opcode = (raw_opcode & 0xFF00) >> 8;
 	chip->opcode |= (raw_opcode & 0x00FF) << 8;
-	
+	chip->pc += 2;
 	
 	load_params(chip->opcode, &params);
 	/* decode and execute opcode */

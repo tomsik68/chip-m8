@@ -4,13 +4,11 @@
 
 void chip8_clear_screen(chip8_t* chip, opcode_params_t* params){
 	memset(chip->gfx, 0, sizeof(chip->gfx));
-	chip->pc += 2;
 }
 
 void chip8_subroutine_return(chip8_t* chip, opcode_params_t* params){
 	chip->pc = chip->stack[chip->sp];
 	--(chip->sp);
-	chip->pc += 2;
 }
 
 void chip8_jump(chip8_t* chip, opcode_params_t* params){
@@ -33,7 +31,6 @@ void chip8_skipifvx(chip8_t* chip, opcode_params_t* params){
 		chip->pc += 2;
 	}
 	/* and proceed to the next instruction */
-	chip->pc += 2;
 }
 
 void chip8_skipifnvx(chip8_t* chip, opcode_params_t* params){
@@ -42,7 +39,6 @@ void chip8_skipifnvx(chip8_t* chip, opcode_params_t* params){
 		chip->pc += 2;
 	}
 	/* and proceed to the next instruction */
-	chip->pc += 2;
 }
 
 void chip8_skipifxy(chip8_t* chip, opcode_params_t* params){
@@ -50,37 +46,30 @@ void chip8_skipifxy(chip8_t* chip, opcode_params_t* params){
 	if(chip->V[params->x] == chip->V[params->y]){
 		chip->pc += 2;
 	}
-	chip->pc += 2;
 }
 
 void chip8_setvx(chip8_t* chip, opcode_params_t* params){
 	chip->V[params->x] = params->nn;
-	chip->pc += 2;
 }
 
 void chip8_addvx(chip8_t* chip, opcode_params_t* params){
 	chip->V[params->x] += params->nn;
-	chip->pc += 2;
 }
 
 void chip8_setvxvy(chip8_t* chip, opcode_params_t* params){
 	chip->V[params->x] = chip->V[params->y];
-	chip->pc += 2;
 }
 
 void chip8_orvxvy(chip8_t* chip, opcode_params_t* params){
 	chip->V[params->x] |= chip->V[params->y];
-	chip->pc += 2;
 }
 
 void chip8_andvxvy(chip8_t* chip, opcode_params_t* params){
 	chip->V[params->x] &= chip->V[params->y];
-	chip->pc += 2;
 }
 
 void chip8_xorvxvy(chip8_t* chip, opcode_params_t* params){
 	chip->V[params->x] ^= chip->V[params->y];
-	chip->pc += 2;
 }
 
 void chip8_addvxvy(chip8_t* chip, opcode_params_t* params){
@@ -90,7 +79,6 @@ void chip8_addvxvy(chip8_t* chip, opcode_params_t* params){
 		chip->V[0xF] = 0;
 	}
 	chip->V[params->x] += chip->V[params->y];
-	chip->pc += 2;
 }
 
 void chip8_subvxvy(chip8_t* chip, opcode_params_t* params){
@@ -100,7 +88,6 @@ void chip8_subvxvy(chip8_t* chip, opcode_params_t* params){
 		chip->V[0xF] = 0;
 	}
 	chip->V[params->x] -= chip->V[params->y];
-	chip->pc += 2;
 }
 
 void chip8_shrvx(chip8_t* chip, opcode_params_t* params){
@@ -110,7 +97,6 @@ void chip8_shrvx(chip8_t* chip, opcode_params_t* params){
 		chip->V[0xF] = 0;
 	}
 	chip->V[params->x] = chip->V[params->x] >> 1;
-	chip->pc += 2;
 }
 
 void chip8_subnvxvy(chip8_t* chip, opcode_params_t* params){
@@ -120,7 +106,6 @@ void chip8_subnvxvy(chip8_t* chip, opcode_params_t* params){
 		chip->V[0xF] = 0;
 	}
 	chip->V[params->x] = chip->V[params->y] - chip->V[params->x];
-	chip->pc += 2;
 }
 
 void chip8_shlvx(chip8_t* chip, opcode_params_t* params){
@@ -130,21 +115,18 @@ void chip8_shlvx(chip8_t* chip, opcode_params_t* params){
 		chip->V[0xF] = 0;
 	}
 	chip->V[params->x] = chip->V[params->x] << 1;
-	chip->pc += 2;
 }
 
 void chip8_skipifnvxvy(chip8_t* chip, opcode_params_t* params){
 	if(chip->V[params->x] != chip->V[params->y]){
 		chip->pc += 2;
 	}
-	chip->pc += 2;
 }
 
 void chip8_seti(chip8_t* chip, opcode_params_t* params){
 	/* set the index register to nnn */
 	chip->I = params->nnn;
 	/* and proceed to the next instruction */
-	chip->pc += 2;
 }
 
 void chip8_jumpr(chip8_t* chip, opcode_params_t* params){
@@ -153,7 +135,6 @@ void chip8_jumpr(chip8_t* chip, opcode_params_t* params){
 
 void chip8_rand(chip8_t* chip, opcode_params_t* params){
 	chip->V[params->x] = ((unsigned char)(rand() % 255)) & params->nn;
-	chip->pc += 2;
 }
 
 void chip8_draw(chip8_t* chip, opcode_params_t* params){
@@ -181,66 +162,54 @@ void chip8_draw(chip8_t* chip, opcode_params_t* params){
 			}
 		}
 	}
-	chip->pc += 2;
 }
 
 void chip8_skipkeydown(chip8_t* chip, opcode_params_t* params){
 	if(chip->keys[chip->V[params->x]] == 1){
 		chip->pc += 2;
 	}
-	chip->pc += 2;
 }
 
 void chip8_skipkeyup(chip8_t* chip, opcode_params_t* params){
 	if(chip->keys[chip->V[params->x]] == 0){
 		chip->pc += 2;
 	}
-	chip->pc += 2;
 }
 
 void chip8_setvxdt(chip8_t* chip, opcode_params_t* params){
 	chip->V[params->x] = chip->delay_timer;
-	chip->pc += 2;
 }
 
 void chip8_waitkeypress(chip8_t* chip, opcode_params_t* params){
 	chip->waiting_keypress = 1;
-	chip->pc += 2;
 }
 
 void chip8_setdtvx(chip8_t* chip, opcode_params_t* params){
 	chip->delay_timer = chip->V[params->x];
-	chip->pc += 2;
 }
 
 void chip8_setstvx(chip8_t* chip, opcode_params_t* params){
 	chip->sound_timer = chip->V[params->x];
-	chip->pc += 2;
 }
 
 void chip8_addivx(chip8_t* chip, opcode_params_t* params){
 	chip->I += chip->V[params->x];
-	chip->pc += 2;
 }
 
 void chip8_bcdvx(chip8_t* chip, opcode_params_t* params){
 	chip->memory[chip->I	] = chip->V[params->x] / 100;
 	chip->memory[chip->I + 1] = (chip->V[params->x] / 10) % 10;
 	chip->memory[chip->I + 2] = (chip->V[params->x] % 100) % 10;
-	chip->pc += 2;
 }
 
 void chip8_writereg(chip8_t* chip, opcode_params_t* params){
 	memcpy(chip->memory + chip->I, chip->V, params->x);
-	chip->pc += 2;
 }
 
 void chip8_loadreg(chip8_t* chip, opcode_params_t* params){
 	memcpy(chip->V, chip->memory + chip->I, params->x);
-	chip->pc += 2;
 }
 
 void chip8_digisprite(chip8_t* chip, opcode_params_t* params){
 	chip->I = CHIP_FONTS_OFFSET + 5 * chip->V[params->x];
-	chip->pc += 2;
 }
