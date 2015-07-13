@@ -14,14 +14,15 @@ typedef struct {
 static SDL_Window* 	window;
 static SDL_Event 	event;
 static SDL_Renderer* 	renderer;
-static SDL_Surface*	chipScreen;
-static SDL_Surface*	windowSurface;
-static SDL_Texture*	windowTexture;
+static SDL_Texture*	screen;
 static keybinding_t bindings[] = {
 	{SDLK_1, 1}, {SDLK_2, 2}, {SDLK_3, 3}, {SDLK_4, 4}, {SDLK_5, 5}, {SDLK_6, 6},
 	{SDLK_7, 7}, {SDLK_8, 8}, {SDLK_9, 9}, {SDLK_a, 0xA}, {SDLK_b, 0xB}, {SDLK_c, 0xC}, 
 	{SDLK_c, 0xC}, {SDLK_d, 0xD}, {SDLK_e, 0xE}, {SDLK_f, 0xF}
 };
+
+static void* 	mpixels;
+static int 	mpitch;
 
 /* the chip */
 static chip8_t chip;
@@ -61,10 +62,7 @@ int main(int argc, char** argv){
 		fprintf(stderr, "Error: Unable to create renderer: %s", SDL_GetError());
 		return 1;
 	}
-	
-	chipScreen = SDL_CreateRGBSurface(0, CHIP_GFX_WIDTH, CHIP_GFX_HEIGHT, 32, 0, 0, 0, 0);	
-	windowSurface = SDL_CreateRGBSurface(0, SCREEN_WIDTH, SCREEN_HEIGHT, 32, 0, 0, 0, 0);
-	windowTexture = NULL;
+	screen = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, CHIP_GFX_WIDTH, CHIP_GFX_HEIGHT);
 	/* initialize the chip */
 	chip8_init(&chip);
 	chip8_load(&chip, program, program_length);
@@ -109,27 +107,22 @@ int main(int argc, char** argv){
 		/* draw the current screen */
 		SDL_RenderClear(renderer);
 		sync_screen();
-		SDL_RenderCopy(renderer, windowTexture, NULL, NULL);
+		SDL_RenderCopy(renderer, screen, NULL, NULL);
 		SDL_RenderPresent(renderer);
 		
 		/* ensure delay <= 60 Hz */
-		SDL_Delay(1000 / 60);
+		SDL_Delay(1000 / 60); 
 	}
 	chip8_cleanup(&chip);
-	SDL_FreeSurface(chipScreen);
-	SDL_FreeSurface(windowSurface);
-	SDL_DestroyTexture(windowTexture);
+	SDL_DestroyTexture(screen);
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
 	return 0;
 }
 
-static int x, y, i;
-static SDL_Rect dest = {0, 0, SCREEN_WIDTH / CHIP_GFX_WIDTH, SCREEN_HEIGHT / CHIP_GFX_HEIGHT};
-
 #define COLOR_OFF	0x000000FF
-#define COLOR_ON	0xFF00FFFF
+#define COLOR_ON	0xFFFFFFFF
 int get_color(unsigned char pixel){
 	if(pixel == 1)
 		return COLOR_ON;
@@ -137,14 +130,11 @@ int get_color(unsigned char pixel){
 		return COLOR_OFF;
 }
 
+static int i = 0;
 void sync_screen(){
-	/* chip device -> small SDL_Surface */
-	for(i = 0; i < CHIP_GFX_HEIGHT * CHIP_GFX_WIDTH; ++i){
-		int* pixel = ((int*)(chipScreen->pixels + sizeof(int) * i));
-		*pixel = get_color(chip.gfx[i]);
+	SDL_LockTexture(screen, NULL, &mpixels, &mpitch);
+	for(i = 0; i < CHIP_GFX_WIDTH * CHIP_GFX_HEIGHT; ++i){
+		*((int*)(mpixels) + i) = get_color(chip.gfx[i]);
 	}
-	/* small SDL_Surface -> big SDL_Surface */
-	SDL_BlitScaled(chipScreen, NULL, windowSurface, NULL );
-	/* big SDL_Surface -> windowTexture */
-	windowTexture = SDL_CreateTextureFromSurface(renderer, windowSurface);
+	SDL_UnlockTexture(screen);
 }
