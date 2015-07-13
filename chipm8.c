@@ -62,8 +62,8 @@ int main(int argc, char** argv){
 		return 1;
 	}
 	
-	chipScreen = SDL_CreateRGBSurface(0, CHIP_GFX_WIDTH, CHIP_GFX_HEIGHT, 8, 0, 0, 0, 0);	
-	windowSurface = SDL_CreateRGBSurface(0, SCREEN_WIDTH, SCREEN_HEIGHT, 8, 0, 0, 0, 0);
+	chipScreen = SDL_CreateRGBSurface(0, CHIP_GFX_WIDTH, CHIP_GFX_HEIGHT, 32, 0, 0, 0, 0);	
+	windowSurface = SDL_CreateRGBSurface(0, SCREEN_WIDTH, SCREEN_HEIGHT, 32, 0, 0, 0, 0);
 	windowTexture = NULL;
 	/* initialize the chip */
 	chip8_init(&chip);
@@ -125,40 +125,26 @@ int main(int argc, char** argv){
 	return 0;
 }
 
-unsigned char get_color(unsigned char chip_value){
-	if(chip_value == 1){
-		return 255;
-	} else {
-		return 0;
-	}
-}
-
-static int x, y;
+static int x, y, i;
 static SDL_Rect dest = {0, 0, SCREEN_WIDTH / CHIP_GFX_WIDTH, SCREEN_HEIGHT / CHIP_GFX_HEIGHT};
+
+#define COLOR_OFF	0x000000FF
+#define COLOR_ON	0xFF00FFFF
+int get_color(unsigned char pixel){
+	if(pixel == 1)
+		return COLOR_ON;
+	else
+		return COLOR_OFF;
+}
 
 void sync_screen(){
 	/* chip device -> small SDL_Surface */
-	/*memcpy(chipScreen->pixels, &(chip.gfx), CHIP_GFX_WIDTH * CHIP_GFX_HEIGHT);*/
-	for(y = 0; y < CHIP_GFX_HEIGHT; ++y){
-		for(x = 0; x < CHIP_GFX_WIDTH; ++x){
-			chipScreen->pixels[y * CHIP_GFX_WIDTH + x] = get_color(chip.gfx[y * CHIP_GFX_WIDTH + x]);
-		}
+	for(i = 0; i < CHIP_GFX_HEIGHT * CHIP_GFX_WIDTH; ++i){
+		int* pixel = ((int*)(chipScreen->pixels + sizeof(int) * i));
+		*pixel = get_color(chip.gfx[i]);
 	}
 	/* small SDL_Surface -> big SDL_Surface */
-	SDL_BlitScaled(chipScreen, NULL, windowSurface, NULL);
+	SDL_BlitScaled(chipScreen, NULL, windowSurface, NULL );
 	/* big SDL_Surface -> windowTexture */
 	windowTexture = SDL_CreateTextureFromSurface(renderer, windowSurface);
-	/*
-	for(y = 0; y < CHIP_GFX_HEIGHT; ++y){
-		for(x = 0; x < CHIP_GFX_WIDTH; ++x){
-			if(chip.gfx[y * CHIP_GFX_WIDTH + x] == 1){
-				SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
-			} else {
-				SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
-			}
-			dest.x = dest.w * x;
-			dest.y = dest.h * y;
-			SDL_RenderFillRect(renderer, &dest);
-		}
-	}*/
 }
