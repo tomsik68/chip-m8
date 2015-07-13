@@ -14,7 +14,9 @@ typedef struct {
 static SDL_Window* 	window;
 static SDL_Event 	event;
 static SDL_Renderer* 	renderer;
-static SDL_Texture* 	screen;
+static SDL_Surface*	chipScreen;
+static SDL_Surface*	windowSurface;
+static SDL_Texture*	windowTexture;
 static keybinding_t bindings[] = {
 	{SDLK_1, 1}, {SDLK_2, 2}, {SDLK_3, 3}, {SDLK_4, 4}, {SDLK_5, 5}, {SDLK_6, 6},
 	{SDLK_7, 7}, {SDLK_8, 8}, {SDLK_9, 9}, {SDLK_a, 0xA}, {SDLK_b, 0xB}, {SDLK_c, 0xC}, 
@@ -60,8 +62,9 @@ int main(int argc, char** argv){
 		return 1;
 	}
 	
-	screen = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB332, SDL_TEXTUREACCESS_STREAMING, CHIP_GFX_WIDTH, CHIP_GFX_HEIGHT);
-	
+	chipScreen = SDL_CreateRGBSurface(0, CHIP_GFX_WIDTH, CHIP_GFX_HEIGHT, 8, 0, 0, 0, 0);	
+	windowSurface = SDL_CreateRGBSurface(0, SCREEN_WIDTH, SCREEN_HEIGHT, 8, 0, 0, 0, 0);
+	windowTexture = NULL;
 	/* initialize the chip */
 	chip8_init(&chip);
 	chip8_load(&chip, program, program_length);
@@ -106,23 +109,46 @@ int main(int argc, char** argv){
 		/* draw the current screen */
 		SDL_RenderClear(renderer);
 		sync_screen();
+		SDL_RenderCopy(renderer, windowTexture, NULL, NULL);
 		SDL_RenderPresent(renderer);
 		
 		/* ensure delay <= 60 Hz */
 		SDL_Delay(1000 / 60);
 	}
 	chip8_cleanup(&chip);
-	SDL_DestroyTexture(screen);
+	SDL_FreeSurface(chipScreen);
+	SDL_FreeSurface(windowSurface);
+	SDL_DestroyTexture(windowTexture);
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
 	return 0;
 }
 
+unsigned char get_color(unsigned char chip_value){
+	if(chip_value == 1){
+		return 255;
+	} else {
+		return 0;
+	}
+}
+
 static int x, y;
 static SDL_Rect dest = {0, 0, SCREEN_WIDTH / CHIP_GFX_WIDTH, SCREEN_HEIGHT / CHIP_GFX_HEIGHT};
 
 void sync_screen(){
+	/* chip device -> small SDL_Surface */
+	/*memcpy(chipScreen->pixels, &(chip.gfx), CHIP_GFX_WIDTH * CHIP_GFX_HEIGHT);*/
+	for(y = 0; y < CHIP_GFX_HEIGHT; ++y){
+		for(x = 0; x < CHIP_GFX_WIDTH; ++x){
+			chipScreen->pixels[y * CHIP_GFX_WIDTH + x] = get_color(chip.gfx[y * CHIP_GFX_WIDTH + x]);
+		}
+	}
+	/* small SDL_Surface -> big SDL_Surface */
+	SDL_BlitScaled(chipScreen, NULL, windowSurface, NULL);
+	/* big SDL_Surface -> windowTexture */
+	windowTexture = SDL_CreateTextureFromSurface(renderer, windowSurface);
+	/*
 	for(y = 0; y < CHIP_GFX_HEIGHT; ++y){
 		for(x = 0; x < CHIP_GFX_WIDTH; ++x){
 			if(chip.gfx[y * CHIP_GFX_WIDTH + x] == 1){
@@ -134,5 +160,5 @@ void sync_screen(){
 			dest.y = dest.h * y;
 			SDL_RenderFillRect(renderer, &dest);
 		}
-	}
+	}*/
 }
