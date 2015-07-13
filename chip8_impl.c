@@ -231,12 +231,12 @@ void chip8_bcdvx(chip8_t* chip, opcode_params_t* params){
 }
 
 void chip8_writereg(chip8_t* chip, opcode_params_t* params){
-	memcpy(chip->memory + chip->I, chip->V, sizeof(chip->V));
+	memcpy(chip->memory + chip->I, chip->V, params->x);
 	chip->pc += 2;
 }
 
 void chip8_loadreg(chip8_t* chip, opcode_params_t* params){
-	memcpy(chip->V, chip->memory + chip->I, sizeof(chip->V));
+	memcpy(chip->V, chip->memory + chip->I, params->x);
 	chip->pc += 2;
 }
 
