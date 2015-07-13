@@ -10,6 +10,7 @@ void chip8_clear_screen(chip8_t* chip, opcode_params_t* params){
 void chip8_subroutine_return(chip8_t* chip, opcode_params_t* params){
 	chip->pc = chip->stack[chip->sp];
 	--(chip->sp);
+	chip->pc += 2;
 }
 
 void chip8_jump(chip8_t* chip, opcode_params_t* params){
