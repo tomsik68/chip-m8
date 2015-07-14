@@ -70,7 +70,9 @@ int main(int argc, char** argv){
 	free(program);
 	
 	int running = 1;
+	unsigned time = 0, now = 0, tickTime = 0;
 	while(running){
+		time = SDL_GetTicks();
 		/* update input status */
 		while(SDL_PollEvent(&event) != 0){
 			if(event.type == SDL_KEYDOWN){
@@ -92,7 +94,7 @@ int main(int argc, char** argv){
 				unsigned char i;
 				for(i = 0; i < sizeof(bindings); ++i){
 					if(event.key.keysym.sym == bindings[i].sdl_key){
-						chip.keys[bindings[i].chip_key] = 1;
+						chip.keys[bindings[i].chip_key] = 0;
 					}
 				}
 			} else if(event.type == SDL_QUIT){
@@ -111,7 +113,9 @@ int main(int argc, char** argv){
 		SDL_RenderPresent(renderer);
 		
 		/* ensure delay <= 60 Hz */
-		SDL_Delay(1000 / 60); 
+		now = SDL_GetTicks();
+		tickTime = now - time;
+		SDL_Delay(1000 / 60 - tickTime); 
 	}
 	chip8_cleanup(&chip);
 	SDL_DestroyTexture(screen);
