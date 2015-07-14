@@ -3,13 +3,6 @@
 #include "chip8.h"
 
 /*
- Spare method signature:
- 
-  (chip8_t*, opcode_params_t*);
-
- */
-
-/*
 
 00E0 - CLS
   Clear the display.

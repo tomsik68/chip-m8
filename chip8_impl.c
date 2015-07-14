@@ -1,6 +1,7 @@
 #include "chip8_impl.h"
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 void chip8_clear_screen(chip8_t* chip, opcode_params_t* params){
 	memset(chip->gfx, 0, sizeof(chip->gfx));
@@ -126,7 +127,6 @@ void chip8_skipifnvxvy(chip8_t* chip, opcode_params_t* params){
 void chip8_seti(chip8_t* chip, opcode_params_t* params){
 	/* set the index register to nnn */
 	chip->I = params->nnn;
-	/* and proceed to the next instruction */
 }
 
 void chip8_jumpr(chip8_t* chip, opcode_params_t* params){
