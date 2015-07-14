@@ -36,7 +36,8 @@ void chip8_jump(chip8_t*, opcode_params_t*);
 
 	The interpreter increments the stack pointer, then puts the current PC on the top of the stack. The PC is then set to nnn.
  */
-void chip8_seti(chip8_t*, opcode_params_t*);
+void chip8_callsub(chip8_t*, opcode_params_t*);
+
 
 /*
 
@@ -45,7 +46,8 @@ void chip8_seti(chip8_t*, opcode_params_t*);
 
 	The interpreter compares register Vx to kk, and if they are equal, increments the program counter by 2.
  */
-void chip8_callsub(chip8_t*, opcode_params_t*);
+void chip8_skipifvx(chip8_t*, opcode_params_t*);
+
 
 /*
  
@@ -55,7 +57,8 @@ void chip8_callsub(chip8_t*, opcode_params_t*);
 	The interpreter compares register Vx to kk, and if they are not equal, increments the program counter by 2.
 
  */
-void chip8_skipifvx(chip8_t*, opcode_params_t*);
+void chip8_skipifnvx(chip8_t*, opcode_params_t*);
+
 
 /*
  
@@ -65,7 +68,8 @@ void chip8_skipifvx(chip8_t*, opcode_params_t*);
 	The interpreter compares register Vx to register Vy, and if they are equal, increments the program counter by 2.
 
  */
-void chip8_skipifnvx(chip8_t*, opcode_params_t*);
+void chip8_skipifxy(chip8_t*, opcode_params_t*);
+
 
 /*
  
@@ -75,7 +79,7 @@ void chip8_skipifnvx(chip8_t*, opcode_params_t*);
 	The interpreter puts the value kk into register Vx.
 
  */
-void chip8_skipifxy(chip8_t*, opcode_params_t*);
+void chip8_setvx(chip8_t*, opcode_params_t*);
 
 /*
  
@@ -85,7 +89,7 @@ void chip8_skipifxy(chip8_t*, opcode_params_t*);
 	Adds the value kk to the value of register Vx, then stores the result in Vx.
 
  */
-void chip8_setvx(chip8_t*, opcode_params_t*);
+void chip8_addvx(chip8_t*, opcode_params_t*);
 
 /*
  
@@ -95,7 +99,7 @@ void chip8_setvx(chip8_t*, opcode_params_t*);
 	Stores the value of register Vy in register Vx.
 
  */
-void chip8_addvx(chip8_t*, opcode_params_t*);
+void chip8_setvxvy(chip8_t*, opcode_params_t*);
 
 /*
  
@@ -105,7 +109,7 @@ void chip8_addvx(chip8_t*, opcode_params_t*);
 	Performs a bitwise OR on the values of Vx and Vy, then stores the result in Vx. A bitwise OR compares the corrseponding bits from two values, and if either bit is 1, then the same bit in the result is also 1. Otherwise, it is 0.
 
  */
-void chip8_setvxvy(chip8_t*, opcode_params_t*);
+void chip8_orvxvy(chip8_t*, opcode_params_t*);
 
 /*
  
@@ -125,7 +129,7 @@ void chip8_andvxvy(chip8_t* chip, opcode_params_t* params);
 	Performs a bitwise exclusive OR on the values of Vx and Vy, then stores the result in Vx. An exclusive OR compares the corrseponding bits from two values, and if the bits are not both the same, then the corresponding bit in the result is set to 1. Otherwise, it is 0.
 
  */
-void chip8_orvxvy(chip8_t* chip, opcode_params_t* params);
+void chip8_xorvxvy(chip8_t* chip, opcode_params_t* params);
 
 /*
  
@@ -135,7 +139,7 @@ void chip8_orvxvy(chip8_t* chip, opcode_params_t* params);
 	The values of Vx and Vy are added together. If the result is greater than 8 bits (i.e., > 255,) VF is set to 1, otherwise 0. Only the lowest 8 bits of the result are kept, and stored in Vx.
 
  */
-void chip8_xorvxvy(chip8_t* chip, opcode_params_t* params);
+void chip8_addvxvy(chip8_t* chip, opcode_params_t* params);
 
 /*
  
@@ -145,7 +149,7 @@ void chip8_xorvxvy(chip8_t* chip, opcode_params_t* params);
 	If Vx > Vy, then VF is set to 1, otherwise 0. Then Vy is subtracted from Vx, and the results stored in Vx.
 
  */
-void chip8_addvxvy(chip8_t* chip, opcode_params_t* params);
+void chip8_subvxvy(chip8_t* chip, opcode_params_t* params);
 
 /*
  
@@ -155,7 +159,7 @@ void chip8_addvxvy(chip8_t* chip, opcode_params_t* params);
 	If the least-significant bit of Vx is 1, then VF is set to 1, otherwise 0. Then Vx is divided by 2.
 
  */
-void chip8_subvxvy(chip8_t* chip, opcode_params_t* params);
+void chip8_shrvx(chip8_t* chip, opcode_params_t* params);
 
 /*
  
@@ -165,7 +169,7 @@ void chip8_subvxvy(chip8_t* chip, opcode_params_t* params);
 	If Vy > Vx, then VF is set to 1, otherwise 0. Then Vx is subtracted from Vy, and the results stored in Vx.
 
  */
-void chip8_shrvx(chip8_t* chip, opcode_params_t* params);
+void chip8_subnvxvy(chip8_t* chip, opcode_params_t* params);
 
 /*
  
@@ -175,7 +179,7 @@ void chip8_shrvx(chip8_t* chip, opcode_params_t* params);
 	If the most-significant bit of Vx is 1, then VF is set to 1, otherwise to 0. Then Vx is multiplied by 2.
 
  */
-void chip8_subnvxvy(chip8_t* chip, opcode_params_t* params);
+void chip8_shlvx(chip8_t* chip, opcode_params_t* params);
 
 /*
  
@@ -185,7 +189,7 @@ void chip8_subnvxvy(chip8_t* chip, opcode_params_t* params);
 	The values of Vx and Vy are compared, and if they are not equal, the program counter is increased by 2.
 
  */
-void chip8_shlvx(chip8_t* chip, opcode_params_t* params);
+void chip8_skipifnvxvy(chip8_t* chip, opcode_params_t* params);
 
 /*
  
@@ -195,7 +199,7 @@ Annn - LD I, addr
 	The value of register I is set to nnn.
 
  */
-void chip8_skipifnvxvy(chip8_t* chip, opcode_params_t* params);
+void chip8_seti(chip8_t* chip, opcode_params_t* params);
 
 /*
  

@@ -78,10 +78,9 @@ void chip8_cycle(chip8_t* chip){
 
 	memcpy(&raw_opcode, chip->memory + chip->pc, sizeof(unsigned short));
 
-	chip->pc += sizeof(unsigned short);
-
 	printf("PC before: %hx\n", chip->pc);
 
+	chip->pc += sizeof(unsigned short);
 	chip->opcode = 	((raw_opcode & 0x00FF) << 8) & 0xFF00;
 	chip->opcode |= ((raw_opcode & 0xFF00) >> 8) & 0x00FF;
 
