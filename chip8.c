@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+static unsigned short latest_opcode = 0;
+
 unsigned char chip8_fontset[80] =
 { 
   0xF0, 0x90, 0x90, 0x90, 0xF0, 
@@ -83,6 +85,7 @@ void chip8_cycle(chip8_t* chip){
 	chip->opcode |= (raw_opcode & 0x00FF) << 8;
 	chip->pc += 2;
 	
+
 	load_params(chip->opcode, &params);
 	/* decode and execute opcode */
 	switch(chip->opcode & OPCODE_DECODE_MASK){
@@ -93,7 +96,7 @@ void chip8_cycle(chip8_t* chip){
 				chip8_subroutine_return(chip, &params);
 			} else {
 				/*printf("Unknown instruction(0) %hxy\n", chip->opcode);*/
-				printf("Unknown instruction(0) %hx on addr %hu\n", chip->opcode, chip->pc);
+				printf("Unknown instruction(0) %hx after %hx\n", chip->opcode, latest_opcode);
 				return;
 			}
 			break;
@@ -156,6 +159,7 @@ void chip8_cycle(chip8_t* chip){
 				printf("Unknown instruction(bigswitch) %hx on addr %hu\n", chip->opcode, chip->pc);
 	}
 	chip8_update_timers(chip);
+	latest_opcode = chip->opcode;
 }
 
 static void chip8_manipulate(chip8_t* chip, opcode_params_t* params){
