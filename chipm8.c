@@ -2,9 +2,11 @@
 #include <SDL2/SDL.h>
 #include "chip8.h"
 
+/* window dimensions */
 #define SCREEN_WIDTH 10 * CHIP_GFX_WIDTH
 #define SCREEN_HEIGHT 10 * CHIP_GFX_HEIGHT
 
+/* a single keybinding - converts SDL_Keycode to unsigned char (0 .. 15) which is a chip keycode  */
 typedef struct {
 	SDL_Keycode 	sdl_key;
 	unsigned char 	chip_key;
@@ -21,17 +23,21 @@ static keybinding_t bindings[] = {
 	{SDLK_c, 0xC}, {SDLK_d, 0xD}, {SDLK_e, 0xE}, {SDLK_f, 0xF}
 };
 
+/* this is for locking the SDL texture */
 static void* 	mpixels;
 static int 	mpitch;
 
 /* the chip */
 static chip8_t chip;
 
+/* this function will send pixels from chip to SDL */
 void sync_screen();
 
+/* loads program from file */
 size_t load_program(char* filename, unsigned char* whereToLoad){
 	size_t result;
 	FILE* file = fopen(filename, "rb");
+	/* programs can be up to 512 bytes, so no buffering is introduced. it might be good to make it buffered... */
 	result = fread(whereToLoad, sizeof(char), 512, file);
 	fclose(file);
 	return result;
@@ -117,6 +123,7 @@ int main(int argc, char** argv){
 		tickTime = now - time;
 		SDL_Delay(1000 / 60 - tickTime); 
 	}
+	/* Free memory */
 	chip8_cleanup(&chip);
 	SDL_DestroyTexture(screen);
 	SDL_DestroyRenderer(renderer);
@@ -125,8 +132,9 @@ int main(int argc, char** argv){
 	return 0;
 }
 
-#define COLOR_OFF	0x000000FF
-#define COLOR_ON	0xFFFFFFFF
+/* colors of chip screen */
+#define COLOR_ON	0x000000FF
+#define COLOR_OFF	0xFFFFFFFF
 int get_color(unsigned char pixel){
 	if(pixel == 1)
 		return COLOR_ON;

@@ -3,5 +3,7 @@
 
 #include "chip8.h"
 
+/* executes a single opcode */
 void chip8_execute_opcode(chip8_t* chip, opcode_params_t* params);
+
 #endif
